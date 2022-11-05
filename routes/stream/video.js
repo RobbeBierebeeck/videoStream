@@ -3,16 +3,15 @@ const router = express.Router();
 const fs = require('fs');
 
 
-router.get('/', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://yourdomain.com");
+router.get('/:video', function (req, res, next) {
     const range = req.headers.range;
     if (!range) {
         res.status(400).send("Requires Range header");
     }
 
     // get video stats (about 61MB)
-    const videoPath = "video1.mp4";
-    const videoSize = fs.statSync("video1.mp4").size;
+    const videoPath = req.params.video;
+    const videoSize = fs.statSync(req.params.video).size;
 
     // Parse Range
     // Example: "bytes=32324-"
@@ -33,7 +32,7 @@ router.get('/', function (req, res, next) {
     res.writeHead(206, headers);
 
     // create video read stream for this particular chunk
-    const videoStream = fs.createReadStream(videoPath, { start, end });
+    const videoStream = fs.createReadStream(videoPath, {start, end});
 
     // Stream the video chunk to the client
     videoStream.pipe(res);
